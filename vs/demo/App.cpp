@@ -42,6 +42,14 @@ void App::SpawnMissileWithMouse()
 	pMissile->transform.Move(1.5f);
 	pMissile->pMaterial = &m_materialMissile;
 	m_missiles.push_back(pMissile);
+
+	cpu_particle_emitter* pEmitter = cpuEngine.CreateParticleEmitter();
+	pEmitter->rate = 0.001f;
+	pEmitter->colorMin = cpu::ToColor(0, 255, 0);
+	pEmitter->colorMax = cpu::ToColor(128, 255, 0);
+	pEmitter->pos = pMissile->transform.pos;
+	pEmitter->dir = ray.dir;
+	m_missilesEmitter.push_back(pEmitter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,7 +104,7 @@ void App::OnStart()
 	m_pShip->GetFSM()->ToState(CPU_ID(StateShipIdle));
 
 	// Particle
-	cpuEngine.GetParticleData()->Create(2000000);
+	cpuEngine.GetParticleData()->Create(20000000);
 	cpuEngine.GetParticlePhysics()->gy = -0.5f;
 	m_pEmitter = cpuEngine.CreateParticleEmitter();
 	m_pEmitter->rate = 1.0f;
@@ -150,10 +158,10 @@ void App::OnUpdate()
 	m_pEmitter->dir = m_pMoon->transform.dir;
 	m_pEmitter->dir.x = -m_pEmitter->dir.x; 
 	m_pEmitter->dir.y = -m_pEmitter->dir.y; 
-	m_pEmitter->dir.z = -m_pEmitter->dir.z; 
+	m_pEmitter->dir.z = -m_pEmitter->dir.z;
 
 	// Turn camera
-	cpuEngine.GetCamera()->transform.AddYPR(0.0f, 0.0f, dt*0.1f);
+	cpuEngine.GetCamera()->transform.AddYPR(0.0f, 0.0f, 0.0f);
 
 	// Move ship
 	if ( cpuInput.IsUp() )
@@ -170,8 +178,22 @@ void App::OnUpdate()
 	{
 		cpu_entity* pMissile = *it;
 		pMissile->transform.Move(dt*m_missileSpeed);
-		if ( pMissile->lifetime>10.0f )
+		if (pMissile->lifetime > 10.0f)
+		{
 			cpuEngine.Release(pMissile);
+		}
+	}
+
+	for (auto it = m_missilesEmitter.begin(); it != m_missilesEmitter.end(); ++it)
+	{
+		cpu_particle_emitter* pEmitter = *it;
+		pEmitter->pos.x += pEmitter->dir.x * (dt * m_missileSpeed);
+		pEmitter->pos.y += pEmitter->dir.y * (dt * m_missileSpeed);
+		pEmitter->pos.z += pEmitter->dir.z * (dt * m_missileSpeed);
+		if (pEmitter->pos.z > 30.0f || pEmitter->pos.z < -30.0f)
+		{
+			cpuEngine.Release(pEmitter);
+		}
 	}
 
 	// Fire
