@@ -1,12 +1,54 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\rfelix\\Documents\\GitHub\\cpu-engine\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\rfelix\\Documents\\GitHub\\cpu-engine\\vs\\template\\App.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:vs\\template\\App.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\rfelix\\Documents\\GitHub\\cpu-engine\\vs\\template\\App.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:vs\\template\\App.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "App.h",
+              "DocumentMoniker": "C:\\Users\\rfelix\\Documents\\GitHub\\cpu-engine\\vs\\template\\App.h",
+              "RelativeDocumentMoniker": "vs\\template\\App.h",
+              "ToolTip": "C:\\Users\\rfelix\\Documents\\GitHub\\cpu-engine\\vs\\template\\App.h",
+              "RelativeToolTip": "vs\\template\\App.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-10-07T09:51:16.3Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "App.cpp",
+              "DocumentMoniker": "C:\\Users\\rfelix\\Documents\\GitHub\\cpu-engine\\vs\\template\\App.cpp",
+              "RelativeDocumentMoniker": "vs\\template\\App.cpp",
+              "ToolTip": "C:\\Users\\rfelix\\Documents\\GitHub\\cpu-engine\\vs\\template\\App.cpp",
+              "RelativeToolTip": "vs\\template\\App.cpp",
+              "ViewState": "AgIAAJ8AAAAAAAAAAAAAAJoAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-10-07T09:51:14.54Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

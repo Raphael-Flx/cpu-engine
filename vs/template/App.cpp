@@ -26,10 +26,14 @@ void App::OnStart()
 	m_font.Create(cpuDevice.GetHeight() <= 512 ? 14 : 28);
 
 	m_playerRotationAngle = 0.0f;
-	m_timer = 0.0f;
+	m_obstacleTimer = 0.0f;
+	m_cameraShakeTimer = 0.0f;
+	m_lastShake = 0.0f;
+
 	m_score = 0;
-	m_lives = 3;
+	m_bestScore = 0;
 	m_isPlaying = true;
+	m_isCameraShaking = false;
 
 	m_playerSpeed = 0.0f;
 	m_playerMaxSpeed = 5.0f;
@@ -45,8 +49,9 @@ void App::OnStart()
 
 	//Mesh
 	m_cylinderMesh.CreateCylinder(0.5f, 0.5f, 15, true, true, CPU_BLUE);
-	m_largeCircleMesh.CreateCircle(5.0f, 50, CPU_BLACK);
-	m_smallCircleMesh.CreateCircle(4.0f, 50, CPU_WHITE);
+	m_largeCircleMesh.CreateCircle(5.0f, 40, CPU_BLACK);
+	m_smallCircleMesh.CreateCircle(4.0f, 40, CPU_WHITE);
+	m_holeMesh.CreateCircle(1.5f, 20, XMFLOAT3(0, 0, 0.33));
 	m_sphereMesh.CreateSphere(0.5f, 5, 5, CPU_RED, CPU_GREEN);
 
 	//Entities
@@ -62,8 +67,14 @@ void App::OnStart()
 	m_smallCircle = cpuEngine.CreateEntity();
 	m_smallCircle->pMesh = &m_smallCircleMesh;
 	m_smallCircle->transform.pos.x = 0.0f;
-	m_smallCircle->transform.pos.y = -0.4f;
+	m_smallCircle->transform.pos.y = -0.45f;
 	m_smallCircle->transform.pos.z = 0.0f;
+
+	m_hole = cpuEngine.CreateEntity();
+	m_hole->pMesh = &m_holeMesh;
+	m_hole->transform.pos.x = 0.0f;
+	m_hole->transform.pos.y = -0.3f;
+	m_hole->transform.pos.z = 0.0f;
 
 	//Even smaller circle in the center
 
@@ -90,7 +101,7 @@ void App::OnUpdate()
 
 	if (m_isPlaying)
 	{
-		m_timer += dt;
+		m_obstacleTimer += dt;
 
 		//Move Player
 		
@@ -119,6 +130,7 @@ void App::OnUpdate()
 		//Obstacles
 		for (auto it = m_obstacles.begin(); it != m_obstacles.end();)
 		{
+			bool nextIt = true;
 			Obstacle* obstacle = *it;
 
 			if (obstacle->HasBounced())
@@ -146,17 +158,25 @@ void App::OnUpdate()
 
 			if (obstacleY <= 0.0f)
 			{
+				OutputDebugStringA(std::to_string(obstacle->GetEntity()->transform.pos.x).c_str());
+				OutputDebugStringA(", ");
 				OutputDebugStringA(std::to_string(obstacleY).c_str());
+				OutputDebugStringA(", ");
+				OutputDebugStringA(std::to_string(obstacle->GetEntity()->transform.pos.z).c_str());
 				OutputDebugStringA("\n");
 				if (obstacle->HasBounced())
 				{
-					if (obstacleY <= -5.0f)
+					obstacle->GetEntity()->transform.dir.x = 0;
+					obstacle->GetEntity()->transform.dir.z = 0;
+
+					if (obstacleY <= -10.0f)
 					{
 						m_score += 1;
 
 						cpuEngine.Release(obstacle->GetEntity());
 						it = m_obstacles.erase(it);
 						delete obstacle;
+						nextIt = false;
 					}
 					
 				}
@@ -167,6 +187,11 @@ void App::OnUpdate()
 					cpuEngine.Release(obstacle->GetEntity());
 					it = m_obstacles.erase(it);
 					delete obstacle;
+					nextIt = false;
+
+					//Camera Shake
+					m_isCameraShaking = true;
+					m_yawShake = RandomFLOAT(0.01f, 0.2f);
 				}
 			}
 			else if (isColliding)
@@ -180,15 +205,22 @@ void App::OnUpdate()
 				obstacle->GetEntity()->transform.dir = to_center;
 
 				obstacle->Bounce();
-				it++;
 			}
-			else
+
+			if (nextIt)
 				it++;
 		}
 
-		if (m_lives == 0)
-			m_isPlaying = false;
+		m_bestScore = std::max(m_score, m_bestScore);
 	}
+
+	if (m_isCameraShaking)
+	{
+		m_cameraShakeTimer += dt;
+		CameraShake();
+		
+	}
+		
 	
 	// Move Camera
 	if (cpuInput.IsUp())
@@ -206,12 +238,24 @@ void App::OnUpdate()
 
 	// Quit
 	if (cpuInput.IsBackPressed())
+	{
 		cpuEngine.Quit();
+	}
+		
 }
 
 void App::OnExit()
 {
 	// YOUR CODE HERE
+	for (auto it = m_obstacles.begin(); it != m_obstacles.end();)
+	{
+		Obstacle* obstacle = *it;
+
+		cpuEngine.Release(obstacle->GetEntity());
+		it = m_obstacles.erase(it);
+		delete obstacle;
+	}
+
 }
 
 void App::OnRender(int pass)
@@ -222,7 +266,7 @@ void App::OnRender(int pass)
 	{
 		// Debug
 		std::string info = "Score : " + std::to_string(m_score);
-		info += "\nLives : " + std::to_string(m_lives);
+		info += "\nBest Score : " + std::to_string(m_bestScore);
 
 		XMFLOAT3 tint = { 1.0f, 1.0f, 0.8f };
 		cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth() * 0.5f), 10, CPU_TEXT_CENTER, &tint);
@@ -243,7 +287,7 @@ void App::MyPixelShader(cpu_ps_io& io)
 
 void App::SpawnObstacle()
 {
-	if (m_timer < m_spawnTime)
+	if (m_obstacleTimer < m_spawnTime)
 		return;
 
 	float randomAngle = RandomFLOAT(0.0f, XM_2PI);
@@ -256,11 +300,30 @@ void App::SpawnObstacle()
 
 	Obstacle* obstacle = new Obstacle();
 	obstacle->Create(&m_sphereMesh, XMFLOAT3(posX, posY, posZ));
-	obstacle->SetSpeed(std::max(1.0f, (m_score / 10.0f)));
+	obstacle->SetSpeed(std::min(4.0f, std::max(1.5f, (m_score / 10.0f))));
 	m_obstacles.push_back(obstacle);
 
-	m_timer = 0.f;
-	m_spawnTime = RandomFLOAT(std::max(1.0f, 4.f - (m_score + 1.f) / 8.0f), 4.0f - ((m_score + 1) / 16.0f));
+	m_obstacleTimer = 0.f;
+	m_spawnTime = RandomFLOAT(std::max(0.5f, 4.f - (m_score + 1.f) / 4.0f), std::max(1.0f, 4.0f - ((m_score + 1) / 10.0f)));
+}
+
+void App::CameraShake()
+{
+	//Random YPR each 0.2s for 1.0s
+	if (m_cameraShakeTimer > m_lastShake + 0.2f)
+	{
+		m_lastShake = m_cameraShakeTimer;
+		cpuEngine.GetCamera()->transform.SetYPR(0);
+	}
+	else
+	{
+		cpuEngine.GetCamera()->transform.SetYPR(m_yawShake, m_yawShake);
+	}
+	
+	
+
+	if (m_cameraShakeTimer > 1.0f)
+		m_isCameraShaking = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

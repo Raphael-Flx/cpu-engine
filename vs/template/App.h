@@ -19,6 +19,8 @@ public:
 
 	void SpawnObstacle();
 
+	void CameraShake();
+
 	unsigned int RandomUINT();
 	int RandomINT(int min, int max);
 	float RandomFLOAT(float min, float max);
@@ -27,6 +29,7 @@ private:
 	//Entities
 	cpu_entity* m_largeCircle;
 	cpu_entity* m_smallCircle;
+	cpu_entity* m_hole;
 	cpu_entity* m_player;
 
 	std::list<Obstacle*> m_obstacles;
@@ -34,6 +37,7 @@ private:
 	//Mesh
 	cpu_mesh m_largeCircleMesh;
 	cpu_mesh m_smallCircleMesh;
+	cpu_mesh m_holeMesh;
 	cpu_mesh m_cylinderMesh;
 	cpu_mesh m_sphereMesh;
 
@@ -47,7 +51,7 @@ private:
 	float m_playerDeceleration;
 	float m_playerBrake;
 
-	float m_timer;
+	float m_obstacleTimer;
 	float m_spawnTime;
 
 	float m_obstacleSpeed;
@@ -55,8 +59,14 @@ private:
 	float m_collisionForce;
 
 	int m_score;
-	int m_lives;
+	int m_bestScore;
 	bool m_isPlaying;
+
+	bool m_isCameraShaking;
+	float m_cameraShake;
+	float m_cameraShakeTimer;
+	float m_lastShake;
+	float m_yawShake;
 
 private:
 	inline static App* s_pApp = nullptr;
