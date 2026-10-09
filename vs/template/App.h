@@ -1,6 +1,7 @@
 #pragma once
 
 class Obstacle;
+class Player;
 
 class App
 {
@@ -17,6 +18,8 @@ public:
 
 	static void MyPixelShader(cpu_ps_io& io);
 
+	bool IsSphereColliding(cpu_entity* pEntity1, cpu_entity* pEntity2);
+
 	void SpawnObstacle();
 
 	void CameraShake();
@@ -27,12 +30,12 @@ public:
 
 private:
 	//Entities
-	cpu_entity* m_largeCircle;
-	cpu_entity* m_smallCircle;
-	cpu_entity* m_hole;
-	cpu_entity* m_player;
+	cpu_entity* m_pLargeCircle = nullptr;
+	cpu_entity* m_pSmallCircle = nullptr;
+	cpu_entity* m_pHole = nullptr;
+	Player* m_pPlayer = nullptr;
 
-	std::list<Obstacle*> m_obstacles;
+	std::list<Obstacle*> m_pObstacles;
 
 	//Mesh
 	cpu_mesh m_largeCircleMesh;
@@ -43,18 +46,9 @@ private:
 
 	cpu_font m_font;
 
-	XMFLOAT3 m_axisCenter;
-	float m_playerRotationAngle;
-	float m_playerSpeed;
-	float m_playerMaxSpeed;
-	float m_playerAcceleration;
-	float m_playerDeceleration;
-	float m_playerBrake;
-
 	float m_obstacleTimer;
 	float m_spawnTime;
 
-	float m_obstacleSpeed;
 	float m_gravity;
 	float m_collisionForce;
 
@@ -67,26 +61,8 @@ private:
 	float m_cameraShakeTimer;
 	float m_lastShake;
 	float m_yawShake;
+	float m_nextYawShake;
 
 private:
 	inline static App* s_pApp = nullptr;
-};
-
-class Obstacle
-{
-private:
-	cpu_entity* m_entity = nullptr;
-
-	bool m_hasBounced = false;
-	float m_speed = 1.0f;
-public:
-	void Create(cpu_mesh* mesh, XMFLOAT3 pos);
-
-	bool HasBounced() { return m_hasBounced; }
-
-	void Bounce() { m_hasBounced = true; }
-	void SetSpeed(float speed) { m_speed = speed; }
-	float GetSpeed() { return m_speed; }
-
-	cpu_entity* GetEntity() { return m_entity; }
 };
