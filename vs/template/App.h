@@ -3,6 +3,8 @@
 class Obstacle;
 class Player;
 
+#define gravity 9.81f
+
 class App
 {
 public:
@@ -18,11 +20,17 @@ public:
 
 	static void MyPixelShader(cpu_ps_io& io);
 
+	void ChangeScore(int amount) { m_score += amount; }
+
+
 	bool IsSphereColliding(cpu_entity* pEntity1, cpu_entity* pEntity2);
 
 	void SpawnObstacle();
 
+	void StartShake();
 	void CameraShake();
+
+	Player* GetPlayer() { return m_pPlayer; }
 
 	unsigned int RandomUINT();
 	int RandomINT(int min, int max);
@@ -48,9 +56,6 @@ private:
 
 	float m_obstacleTimer;
 	float m_spawnTime;
-
-	float m_gravity;
-	float m_collisionForce;
 
 	int m_score;
 	int m_bestScore;

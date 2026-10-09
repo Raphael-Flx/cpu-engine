@@ -80,12 +80,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\template\utils.h" />
     <ClInclude Include="demo.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\template\utils.cpp" />
     <ClCompile Include="demo.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="pch.cpp">
